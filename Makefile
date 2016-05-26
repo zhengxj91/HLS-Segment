@@ -1,17 +1,14 @@
-FLAGS=-I/root/ffmpeg_build/include
-LIBS=-pthread -L/root/ffmpeg_build/lib -lavformat -lavcodec -lx265 -lstdc++ -lrt -lx264 -ldl -lvpx -lpthread -lvorbisenc -lvorbis -logg -lopus -lmp3lame -lfreetype -lfdk-aac -lz -lswresample -lavutil -lm
+EXEC=./segmenter
+SRCS= \
+  ./segmenter.cpp \
+  ./helpers.cpp \
+  ./options_parsing.cpp
 
-all:
-	gcc -Wall -g -DUSE_H264BSF segmenter.c helpers.c options_parsing.c -o segmenter $(FLAGS) $(LIBS)
+CFLAGS=-I/usr/include -I/usr/local/include  -I./include -I./include/vm -I/opt/intel/mediasdk/include
+LFLAGS=-L/opt/intel/mediasdk/lib/lin_x64 -L/usr/local/lib -lavformat -lavcodec -lstdc++ -lz -lmfx -lpthread -lrt -ldl -lva -lva-drm -lavutil -lfdk-aac -lm -lswresample -lswscale
+$(EXEC): $(INCS) $(SRCS) Makefile
+	g++ -g -o $(EXEC) $(SRCS) $(CFLAGS) $(LFLAGS)
 
-m3u8: m3u8.c
-	gcc -Wall -g m3u8.c -o m3u8 $(FLAGS) $(LIBS)
-
+.PHONY: clean
 clean:
-	rm segmenter
-
-install: segmenter
-	cp segmenter /usr/local/bin/
-
-uninstall:
-	rm /usr/local/bin/segmenter
+	rm $(EXEC)
